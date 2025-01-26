@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
 
     FirebaseUser user;
 
-    private static final int RC_SIGN_IN = 100;
+    private static final int RC_SIGN_IN = 100; //
     private static final String TAG = "MainActivity";
     // Michael - Check if the user is an admin - START, 23/01/2025 - SSSSSSSSSSSSSSSSSSSSSSSSSSS
     public static boolean isAdmin(FirebaseUser user) {

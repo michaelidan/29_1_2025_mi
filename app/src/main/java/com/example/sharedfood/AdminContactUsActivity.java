@@ -10,7 +10,7 @@ public class AdminContactUsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin_contact_us);
-
+//
         // אתחול הכפתור לפעולות מנהלים
         Button adminActionsButton = findViewById(R.id.adminActionsButton);
         adminActionsButton.setOnClickListener(v -> {

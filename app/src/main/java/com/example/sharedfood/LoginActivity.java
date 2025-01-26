@@ -70,7 +70,7 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    // Michael, START, 23/11/2023
+    // Michael, START, 23/11/2023 //
     //שליחת המשתמש לדף הבית, ואם הוא אדמין אז גם תציג הודעת ברוך הבא
     private void checkIfUserIsAdmin(FirebaseUser user) {
         // רשימה של אימיילים של מנהלים

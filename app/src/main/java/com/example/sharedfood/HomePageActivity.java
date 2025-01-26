@@ -58,7 +58,7 @@ public class HomePageActivity extends AppCompatActivity {
         // אתחול של Firebase Auth
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
-
+//
         // בדיקה ומחיקת פוסטים שפג תוקפם
         checkAndDeleteExpiredPosts();
 

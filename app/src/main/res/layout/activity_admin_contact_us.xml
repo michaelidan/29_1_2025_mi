@@ -209,7 +209,7 @@
                     android:textIsSelectable="true" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
-        <!-- התחלה הוספת כפתור מנהלים - מיכאל - 23.1.2025 -->
+        <!-- התחלה הוספת כפתור מנהלים - מיכאל -  23.1.2025 -->
         <Button
             android:id="@+id/adminActionsButton"
             android:layout_width="match_parent"

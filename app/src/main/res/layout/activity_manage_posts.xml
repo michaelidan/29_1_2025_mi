@@ -27,7 +27,7 @@
         android:padding="16dp"
         android:textColor="#FF0000" />
 
-    <!-- RecyclerView להצגת הפוסטים -->
+    <!--  RecyclerView להצגת הפוסטים -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/postsRecyclerView"
         android:layout_width="match_parent"
