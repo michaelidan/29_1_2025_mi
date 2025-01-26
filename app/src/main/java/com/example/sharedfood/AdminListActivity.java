@@ -71,8 +71,8 @@ public class AdminListActivity extends AppCompatActivity {
                     loadAdmins(); // Reload list
                 })
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error removing admin", e);
-                    Toast.makeText(this, "שגיאה בהסרת המנהל", Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, "Error removing admin: " + e.getMessage(), e);
+                    Toast.makeText(this, "שגיאה בהסרת המנהל: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
 }

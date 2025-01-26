@@ -25,7 +25,7 @@ public class LoginActivity extends AppCompatActivity {
 
     // כפתור התחברות
     private Button loginButton;
-
+    // Michael, START, 27/01/2023
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,7 +70,6 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    // Michael, START, 23/11/2023
     //שליחת המשתמש לדף הבית, ואם הוא אדמין אז גם תציג הודעת ברוך הבא
     private void checkIfUserIsAdmin(FirebaseUser user) {
         // רשימה של אימיילים של מנהלים
@@ -85,5 +84,5 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    // סוף הפונקציה לבדיקה אם המשתמש הוא מנהל, michael %%%
+    // Michael, END, 27/01/2023
 }

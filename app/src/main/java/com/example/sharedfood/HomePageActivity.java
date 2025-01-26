@@ -68,7 +68,7 @@ public class HomePageActivity extends AppCompatActivity {
                 startActivity(new Intent(HomePageActivity.this, ShareYourFoodActivity.class));
             }
         });
-
+        // Michael, 23/01/2025, START
         // כפתור "צור קשר"
         findViewById(R.id.contactUsButton).setOnClickListener(v -> {
 

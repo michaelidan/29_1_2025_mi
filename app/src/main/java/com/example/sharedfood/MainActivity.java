@@ -47,8 +47,7 @@
 
         private static final int RC_SIGN_IN = 100;
         private static final String TAG = "MainActivity";
-        // Michael - Check if the user is an admin - START, 23/01/2025 - SSSSSSSSSSSSSSSSSSSSSSSSSSS
-// Michael, 26/01/2025 - START: שינוי isAdmin לשימוש בפיירבייס Firestore
+        // Michael - Check if the user is an admin - START, 26/01/2025 - SSSSSSSSSSSSSSSSSSSSSSSSSSS
         public static void isAdmin(FirebaseUser user, OnAdminCheckCompleteListener listener) {
             if (user == null || user.getEmail() == null) {
                 listener.onComplete(false);
@@ -65,9 +64,8 @@
                         listener.onComplete(false);
                     });
         }
-// Michael, 26/01/2025 - END: שינוי isAdmin לשימוש בפיירבייס Firestore
 
-        // Michael - Check if the user is an admin - END, 23/01/2025 - EEEEEEEEEEEEEEEEEEEEEEEEEEEE
+        // Michael - Check if the user is an admin - END, 26/01/2025 - EEEEEEEEEEEEEEEEEEEEEEEEEEEE
         @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
