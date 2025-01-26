@@ -40,6 +40,11 @@
         <activity
             android:name=".ManagePostsActivity"
             android:exported="true" />
+
+        <activity
+            android:name=".AdminListActivity"
+            android:exported="false" />
+
         <!-- Michael, 26/01/2025 END -->
 
         <!-- Main activity -->

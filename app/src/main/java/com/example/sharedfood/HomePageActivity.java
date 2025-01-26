@@ -74,13 +74,13 @@ public class HomePageActivity extends AppCompatActivity {
 
             FirebaseUser user = mAuth.getCurrentUser();
         // Michael, 23/01/2025, START
-            if (MainActivity.isAdmin(user)){
-                // משתמש הוא מנהל
-                startActivity(new Intent(HomePageActivity.this, AdminContactUsActivity.class));
-            } else {
-                // משתמש רגיל
-                startActivity(new Intent(HomePageActivity.this, activity_contact_us.class));
-            }
+            MainActivity.isAdmin(user, isAdmin -> {
+                if (isAdmin) {
+                    startActivity(new Intent(HomePageActivity.this, AdminContactUsActivity.class));
+                } else {
+                    startActivity(new Intent(HomePageActivity.this, activity_contact_us.class));
+                }
+            });
         });
         // Michael, 23/01/2025, END
 
@@ -125,12 +125,9 @@ public class HomePageActivity extends AppCompatActivity {
                             // מחיקת פוסט אם פג תוקף
                             db.collection("posts").document(document.getId())
                                     .delete()
-                                    .addOnSuccessListener(aVoid -> {
-                                        Log.d("Firebase", "Post deleted: " + document.getId());
-                                    })
-                                    .addOnFailureListener(e -> {
-                                        Log.e("Firebase", "Error deleting post", e);
-                                    });
+                                    .addOnSuccessListener(aVoid -> Log.d("Firebase", "Post deleted: " + document.getId()))
+                                    .addOnFailureListener(e -> Log.e("Firebase", "Error deleting post", e));
+
                         }
                     }
                 }

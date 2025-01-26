@@ -70,18 +70,19 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    // Michael, START, 23/11/2023 //
+    // Michael, START, 23/11/2023
     //שליחת המשתמש לדף הבית, ואם הוא אדמין אז גם תציג הודעת ברוך הבא
     private void checkIfUserIsAdmin(FirebaseUser user) {
         // רשימה של אימיילים של מנהלים
-       if (MainActivity.isAdmin(user)){
-            // אם המשתמש הוא מנהל, הצגת הודעה
+        MainActivity.isAdmin(user, isAdmin -> {
+                    if (isAdmin) {            // אם המשתמש הוא מנהל, הצגת הודעה
             Toast.makeText(LoginActivity.this, "ברוך הבא, אדון מנהל! \n בשביל פעולות מנהלים לחץ על \"צור קשר\"", Toast.LENGTH_SHORT).show();
         }
         // ניווט למסך הבית
         Intent intent = new Intent(LoginActivity.this, HomePageActivity.class);
         startActivity(intent);
         finish();
+        });
     }
 
     // סוף הפונקציה לבדיקה אם המשתמש הוא מנהל, michael %%%

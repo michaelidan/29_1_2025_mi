@@ -27,7 +27,7 @@ import java.util.List;
 
     public class ManagePostsActivity extends AppCompatActivity implements MyPostsAdapter.PostDeleteListener, MyPostsAdapter.PostEditListener {
 
-    private RecyclerView recyclerView; 
+    private RecyclerView recyclerView;
     private MyPostsAdapter adapter;
     private FirebaseFirestore db;
     private TextView emptyStateText;
@@ -105,7 +105,7 @@ import java.util.List;
                                     post.setCity(city);
 
                                     // Set document ID
-                                    post.setId(document.getId()); // וודא שזה קיים
+                                    post.setId(document.getId());
 
                                     postsList.add(post);
 

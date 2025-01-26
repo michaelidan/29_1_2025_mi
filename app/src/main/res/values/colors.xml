@@ -5,5 +5,7 @@
     <color name="lavender">#8692f7</color>
     <color name="green_color">#1C9529</color>
     <color name="green_color_dark">#063C0B</color>
+    <color name="red_color">#FF0000</color>
+    <color name="blue_color">#2196F3</color>
     <color name="chip_background_color">#84B884</color>
 </resources>

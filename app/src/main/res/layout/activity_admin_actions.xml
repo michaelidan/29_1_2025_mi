@@ -20,4 +20,14 @@
         android:text="ניהול פוסטים"
         android:layout_marginTop="16dp" />
 
+    <Button
+        android:id="@+id/adminListButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="רשימת מנהלים"
+        android:backgroundTint="@color/blue_color"
+        android:textColor="@android:color/white" />
+
+
 </LinearLayout>
