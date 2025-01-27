@@ -13,7 +13,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.example.sharedfood.User;
 
@@ -44,22 +46,37 @@ public class UserListActivity extends AppCompatActivity {
     }
 
     private void loadUsers() {
-        db.collection("users").get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                List<User> userList = new ArrayList<>();
-                task.getResult().forEach(document -> {
-                    String email = document.getId();
-                    boolean isBanned = document.getBoolean("is_banned") != null && document.getBoolean("is_banned");
-                    Long tempBanTime = document.contains("temp_ban_time") ? document.getLong("temp_ban_time") : null;
-                    userList.add(new User(email, isBanned, tempBanTime));
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // שליפת רשימת המנהלים
+        db.collection("admins").get().addOnCompleteListener(adminsTask -> {
+            if (adminsTask.isSuccessful()) {
+                List<String> adminEmails = new ArrayList<>();
+                adminsTask.getResult().forEach(admin -> adminEmails.add(admin.getId()));
+
+                // שליפת כל המשתמשים שאינם מנהלים
+                db.collection("users").get().addOnCompleteListener(usersTask -> {
+                    if (usersTask.isSuccessful()) {
+                        List<User> userList = new ArrayList<>();
+                        usersTask.getResult().forEach(document -> {
+                            String email = document.getId();
+                            if (!adminEmails.contains(email)) { // רק אם המשתמש אינו מנהל
+                                boolean isBanned = document.getBoolean("is_banned") != null && document.getBoolean("is_banned");
+                                Long tempBanTime = document.contains("temp_ban_time") ? document.getLong("temp_ban_time") : null;
+                                userList.add(new User(email, isBanned, tempBanTime));
+                            }
+                        });
+                        userAdapter.updateUsers(userList); // עדכון רשימת המשתמשים בתצוגה
+                    } else {
+                        Log.e(TAG, "Failed to load users", usersTask.getException());
+                    }
                 });
-                userAdapter.updateUsers(userList);
             } else {
-                Log.e(TAG, "Failed to load users", task.getException());
-                Toast.makeText(this, "שגיאה בטעינת רשימת המשתמשים", Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "Failed to load admins", adminsTask.getException());
             }
         });
     }
+
 
 
     private void performActionOnUser(User user, String action) {
@@ -97,15 +114,25 @@ public class UserListActivity extends AppCompatActivity {
     }
 
     private void promoteToAdmin(User user) {
+        Log.d(TAG, "promoteToAdmin: Trying to promote " + user.getEmail()); // לצורך בדיקה
+
+        // Prepare admin data
+        Map<String, Object> adminData = new HashMap<>();
+        adminData.put("email", user.getEmail());
+        adminData.put("isSuperAdmin", false); // Adjust this based on your logic
+
+        // Add user to the 'admins' collection
         db.collection("admins").document(user.getEmail())
-                .set(new Object()) // Create admin entry
+                .set(adminData) // Correctly serialize the admin data
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(this, "המשתמש הועלה לדרגת מנהל", Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "promoteToAdmin: Success for " + user.getEmail()); // לצורך בדיקה
                     loadUsers(); // Reload list
                 })
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error promoting user to admin", e);
+                    Log.e(TAG, "promoteToAdmin: Error for " + user.getEmail(), e); // לצורך בדיקה
                     Toast.makeText(this, "שגיאה בהפיכת המשתמש למנהל", Toast.LENGTH_SHORT).show();
                 });
     }
+
 }

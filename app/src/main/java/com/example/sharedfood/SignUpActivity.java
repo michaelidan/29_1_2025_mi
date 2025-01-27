@@ -73,21 +73,17 @@ public class SignUpActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             FirebaseUser user = mAuth.getCurrentUser();
                             if (user != null) {
-                                String userId = email.replace(".", "_"); // שימוש במייל כ-ID
+
                                 Map<String, Object> userData = new HashMap<>();
                                 userData.put("email", email);
                                 userData.put("is_banned", false);
 
                                 db.collection("users")
-                                        .document(userId)
+                                        .document(email) // שימוש ישיר במייל כ-ID
                                         .set(userData)
-                                        .addOnSuccessListener(aVoid -> {
-                                            Toast.makeText(SignUpActivity.this, "User added to Firestore", Toast.LENGTH_SHORT).show();
-                                        })
-                                        .addOnFailureListener(e -> {
-                                            Toast.makeText(SignUpActivity.this, "Failed to add user to Firestore", Toast.LENGTH_SHORT).show();
-                                        });
-                            }
+                                        .addOnSuccessListener(aVoid -> Toast.makeText(SignUpActivity.this, "User added to Firestore", Toast.LENGTH_SHORT).show())
+
+                                        .addOnFailureListener(e -> Toast.makeText(SignUpActivity.this, "Failed to add user to Firestore", Toast.LENGTH_SHORT).show());                            }
                             Toast.makeText(SignUpActivity.this, "Registration successful", Toast.LENGTH_SHORT).show();
                         } else {
                             Toast.makeText(SignUpActivity.this, "Registration failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
