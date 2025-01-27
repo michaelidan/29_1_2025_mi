@@ -1,33 +1,49 @@
-<LinearLayout
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:padding="16dp">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="פעולות מנהלים"
-        android:textSize="24sp"
-        android:textStyle="bold" />
-
-    <!-- כפתור לניהול פוסטים  -->
-    <Button
-        android:id="@+id/managePostsButton"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="ניהול פוסטים"
-        android:layout_marginTop="16dp" />
+        android:orientation="vertical">
 
-    <Button
-        android:id="@+id/adminListButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="רשימת מנהלים"
-        android:backgroundTint="@color/blue_color"
-        android:textColor="@android:color/white" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="פעולות מנהלים"
+            android:textSize="24sp"
+            android:textStyle="bold" />
 
+        <!-- כפתור לניהול פוסטים -->
+        <Button
+            android:id="@+id/managePostsButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ניהול פוסטים"
+            android:layout_marginTop="16dp" />
 
-</LinearLayout>
+        <!-- כפתור לרשימת מנהלים -->
+        <Button
+            android:id="@+id/adminListButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="רשימת מנהלים"
+            android:backgroundTint="@color/blue_color"
+            android:textColor="@android:color/white" />
+
+        <!-- כפתור לרשימת משתמשים -->
+        <Button
+            android:id="@+id/userListButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="רשימת משתמשים"
+            android:backgroundTint="@color/green_color"
+            android:textColor="@android:color/white" />
+
+    </LinearLayout>
+</ScrollView>

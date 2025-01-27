@@ -28,7 +28,7 @@
         <activity
             android:name=".activity_contact_us"
             android:exported="false" />
-        <!-- Michael, 26/01/2025 START -->
+        <!-- Michael, 27/01/2025 START -->
         <activity
             android:name=".AdminContactUsActivity"
             android:exported="true" />
@@ -45,7 +45,11 @@
             android:name=".AdminListActivity"
             android:exported="false" />
 
-        <!-- Michael, 26/01/2025 END -->
+        <activity
+            android:name=".UserListActivity"
+            android:exported="false" />
+
+        <!-- Michael, 27/01/2025 END -->
 
         <!-- Main activity -->
         <activity

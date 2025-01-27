@@ -13,10 +13,16 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class SignUpActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
+    private FirebaseFirestore db; // Michael, 27/01/2025 - הוספת משתנה Firebase Firestore
     private EditText emailEditText, passwordEditText, confirmPasswordEditText;
     private Button signUpButton;
 
@@ -26,6 +32,7 @@ public class SignUpActivity extends AppCompatActivity {
         setContentView(R.layout.activity_signup);
 
         mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance(); // Michael, 27/01/2025 - אתחול Firestore
 
         emailEditText = findViewById(R.id.emailEditText);
         passwordEditText = findViewById(R.id.passwordEditText);
@@ -34,7 +41,6 @@ public class SignUpActivity extends AppCompatActivity {
         ScrollView scroll = findViewById(R.id.termsScrollView);
         TextView textView = findViewById(R.id.termsTextView);
         CheckBox termsCheckBox = findViewById(R.id.termsCheckBox);
-
 
         textView.setText(Html.fromHtml(getString(R.string.terms_and_conditions), Html.FROM_HTML_MODE_LEGACY));
 
@@ -67,6 +73,26 @@ public class SignUpActivity extends AppCompatActivity {
                     .addOnCompleteListener(this, task -> {
                         if (task.isSuccessful()) {
                             Toast.makeText(SignUpActivity.this, "Registration successful", Toast.LENGTH_SHORT).show();
+
+                            // Michael, 27/01/2025 - הוספת המשתמש לאוסף 'users' ב-Firestore - START
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            if (user != null) {
+                                Map<String, Object> userData = new HashMap<>();
+                                userData.put("email", user.getEmail());
+                                userData.put("is_banned", false);
+
+                                db.collection("users")
+                                        .document(user.getUid())
+                                        .set(userData)
+                                        .addOnSuccessListener(aVoid -> {
+                                            Toast.makeText(SignUpActivity.this, "User added to Firestore", Toast.LENGTH_SHORT).show();
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            Toast.makeText(SignUpActivity.this, "Failed to add user to Firestore", Toast.LENGTH_SHORT).show();
+                                        });
+                            }
+                            // Michael, 27/01/2025 - הוספת המשתמש לאוסף 'users' ב-Firestore - END
+
                             // Navigate to the login screen or main activity
                         } else {
                             Toast.makeText(SignUpActivity.this, "Registration failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
