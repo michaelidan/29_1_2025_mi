@@ -63,7 +63,6 @@ public class SignUpActivity extends AppCompatActivity {
                 return;
             }
 
-            // תנאי חדש: בדיקה אם ה-CheckBox לא מסומן
             if (!termsCheckBox.isChecked()) {
                 Toast.makeText(SignUpActivity.this, "Please read and agree to the terms and conditions", Toast.LENGTH_SHORT).show();
                 return;
@@ -72,17 +71,15 @@ public class SignUpActivity extends AppCompatActivity {
             mAuth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener(this, task -> {
                         if (task.isSuccessful()) {
-                            Toast.makeText(SignUpActivity.this, "Registration successful", Toast.LENGTH_SHORT).show();
-
-                            // Michael, 27/01/2025 - הוספת המשתמש לאוסף 'users' ב-Firestore - START
                             FirebaseUser user = mAuth.getCurrentUser();
                             if (user != null) {
+                                String userId = email.replace(".", "_"); // שימוש במייל כ-ID
                                 Map<String, Object> userData = new HashMap<>();
-                                userData.put("email", user.getEmail());
+                                userData.put("email", email);
                                 userData.put("is_banned", false);
 
                                 db.collection("users")
-                                        .document(user.getUid())
+                                        .document(userId)
                                         .set(userData)
                                         .addOnSuccessListener(aVoid -> {
                                             Toast.makeText(SignUpActivity.this, "User added to Firestore", Toast.LENGTH_SHORT).show();
@@ -91,9 +88,7 @@ public class SignUpActivity extends AppCompatActivity {
                                             Toast.makeText(SignUpActivity.this, "Failed to add user to Firestore", Toast.LENGTH_SHORT).show();
                                         });
                             }
-                            // Michael, 27/01/2025 - הוספת המשתמש לאוסף 'users' ב-Firestore - END
-
-                            // Navigate to the login screen or main activity
+                            Toast.makeText(SignUpActivity.this, "Registration successful", Toast.LENGTH_SHORT).show();
                         } else {
                             Toast.makeText(SignUpActivity.this, "Registration failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                         }

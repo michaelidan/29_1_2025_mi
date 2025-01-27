@@ -9,6 +9,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 // ייבוא נוסף לבדיקה אם המשתמש הוא מנהל, michael %%%
 import java.util.List;
@@ -71,18 +72,46 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     //שליחת המשתמש לדף הבית, ואם הוא אדמין אז גם תציג הודעת ברוך הבא
+// בדיקה אם המשתמש חסום והאם ניתן להתחבר
     private void checkIfUserIsAdmin(FirebaseUser user) {
-        // רשימה של אימיילים של מנהלים
-        MainActivity.isAdmin(user, isAdmin -> {
-                    if (isAdmin) {            // אם המשתמש הוא מנהל, הצגת הודעה
-            Toast.makeText(LoginActivity.this, "ברוך הבא, אדון מנהל! \n בשביל פעולות מנהלים לחץ על \"צור קשר\"", Toast.LENGTH_SHORT).show();
+        if (user == null) {
+            Toast.makeText(this, "User not found", Toast.LENGTH_SHORT).show();
+            return;
         }
-        // ניווט למסך הבית
-        Intent intent = new Intent(LoginActivity.this, HomePageActivity.class);
-        startActivity(intent);
-        finish();
-        });
+
+        FirebaseFirestore.getInstance().collection("users")
+                .document(user.getEmail().replace(".", "_")) // שימוש באימייל כ-ID
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Boolean isBanned = documentSnapshot.getBoolean("is_banned");
+                        if (isBanned != null && isBanned) {
+                            Toast.makeText(this, "Your account is banned. Contact support.", Toast.LENGTH_SHORT).show();
+                            FirebaseAuth.getInstance().signOut(); // Logout the user
+                            finish(); // Close LoginActivity
+                            return;
+                        }
+
+                        // Continue with admin check
+                        MainActivity.isAdmin(user, isAdmin -> {
+                            if (isAdmin) {
+                                Toast.makeText(LoginActivity.this, "ברוך הבא, אדון מנהל! \n בשביל פעולות מנהלים לחץ על \"צור קשר\"", Toast.LENGTH_SHORT).show();
+                            }
+                            // Navigate to home page
+                            Intent intent = new Intent(LoginActivity.this, HomePageActivity.class);
+                            startActivity(intent);
+                            finish();
+                        });
+                    } else {
+                        Toast.makeText(this, "User not found in Firestore", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Failed to check user status", Toast.LENGTH_SHORT).show();
+                });
     }
+
+
 
     // Michael, END, 27/01/2023
 }

@@ -20,7 +20,7 @@ import java.util.List;
 
 public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserViewHolder> {
 
-    private static final String TAG = "UserListAdapter";
+    private static final String TAG = "UserListAdapter"; // לצורך בדיקה
     private final List<User> userList;
     private final Context context;
 
@@ -46,6 +46,8 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserVi
         holder.tempBanUserButton.setOnClickListener(v -> handleTempBanUser(user));
         holder.promoteUserButton.setOnClickListener(v -> handlePromoteUser(user));
 
+        Log.d(TAG, "onBindViewHolder: Set listeners for " + user.getEmail()); // לצורך בדיקה
+
         // Update button states based on user status
         if (user.isBanned()) {
             holder.banUserButton.setText("בטל חסימה");
@@ -70,6 +72,7 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserVi
     }
 
     private void handleBanUser(User user) {
+        Log.d(TAG, "handleBanUser called for user: " + user.getEmail()); // לצורך בדיקה
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         DocumentReference userRef = db.collection("users").document(user.getEmail());
 
@@ -101,7 +104,7 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserVi
     }
 
     private void handleTempBanUser(User user) {
-        // Show dialog to select temporary ban duration
+        Log.d(TAG, "handleTempBanUser called for user: " + user.getEmail()); // לצורך בדיקה
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("בחר את משך החסימה")
                 .setItems(new CharSequence[]{"3 שעות", "יום אחד", "3 ימים", "שבוע", "חודש"}, (dialog, which) -> {
@@ -144,6 +147,7 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserVi
     }
 
     private void handlePromoteUser(User user) {
+        Log.d(TAG, "handlePromoteUser called for user: " + user.getEmail()); // לצורך בדיקה
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("admins").document(user.getEmail())
                 .set(new Admin(user.getEmail(), false))
