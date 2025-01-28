@@ -94,18 +94,48 @@ public class UserListActivity extends AppCompatActivity {
     }
 
     private void banUser(User user) {
+        boolean isBanned = user.isBanned(); // האם המשתמש כרגע חסום
         db.collection("users").document(user.getEmail())
-                .update("is_banned", !user.isBanned())
+                .update("is_banned", !isBanned) // עדכון שדה is_banned
                 .addOnSuccessListener(aVoid -> {
-                    String message = user.isBanned() ? "החסימה בוטלה בהצלחה" : "המשתמש נחסם לצמיתות";
-                    Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-                    loadUsers(); // Reload list
+                    if (isBanned) {
+                        // אם המשתמש היה חסום - ביטול חסימה
+                        db.collection("banned_users").document(user.getEmail())
+                                .delete()
+                                .addOnSuccessListener(aVoid1 -> {
+                                    Toast.makeText(this, "החסימה בוטלה בהצלחה", Toast.LENGTH_SHORT).show();
+                                    loadUsers(); // עדכון רשימה
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.e(TAG, "Error removing user from banned_users", e);
+                                    Toast.makeText(this, "שגיאה בהסרת המשתמש מהאוסף banned_users", Toast.LENGTH_SHORT).show();
+                                });
+                    } else {
+                        // אם המשתמש לא היה חסום - הוספת חסימה
+                        Map<String, Object> bannedData = new HashMap<>();
+                        bannedData.put("email", user.getEmail());
+                        bannedData.put("banned_at", System.currentTimeMillis()); // זמן החסימה
+
+                        db.collection("banned_users").document(user.getEmail())
+                                .set(bannedData)
+                                .addOnSuccessListener(aVoid1 -> {
+                                    Toast.makeText(this, "המשתמש נחסם בהצלחה", Toast.LENGTH_SHORT).show();
+                                    loadUsers(); // עדכון רשימה
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.e(TAG, "Error adding user to banned_users", e);
+                                    Toast.makeText(this, "שגיאה בהוספת המשתמש לאוסף banned_users", Toast.LENGTH_SHORT).show();
+                                });
+                    }
                 })
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error updating ban status", e);
-                    Toast.makeText(this, "שגיאה בעדכון הסטטוס", Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, "Error updating user ban status", e);
+                    Toast.makeText(this, "שגיאה בעדכון הסטטוס של המשתמש", Toast.LENGTH_SHORT).show();
                 });
     }
+
+
+
 
     private void tempBanUser(User user) {
         // Implement UI to select ban duration and update Firestore

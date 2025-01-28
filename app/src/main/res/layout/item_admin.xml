@@ -31,7 +31,7 @@
             android:id="@+id/removeAdminButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="הסר מנהל"
+            android:text="הסר מניהול"
             android:layout_marginTop="8dp"
             android:backgroundTint="@color/red_color"
             android:textColor="@android:color/white" />
