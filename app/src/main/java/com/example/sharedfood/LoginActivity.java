@@ -16,6 +16,33 @@ public class LoginActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private EditText emailEditText, passwordEditText;
+    private void checkIfUserIsBannedOrAdmin(FirebaseUser user) {
+        if (user == null) {
+            Toast.makeText(this, "User not found", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        FirebaseFirestore.getInstance().collection("banned_users")
+                .document(user.getEmail())
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Toast.makeText(this, "Your account is banned. Contact support.", Toast.LENGTH_SHORT).show();
+                        FirebaseAuth.getInstance().signOut();
+                        finish();
+                    } else {
+                        checkIfUserIsAdmin(user);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("LoginActivity", "Failed to check ban status", e);
+                    Toast.makeText(this, "Error checking ban status. Please try again.", Toast.LENGTH_SHORT).show();
+                    FirebaseAuth.getInstance().signOut();
+                    finish();
+                });
+    }
+
+
     private Button loginButton;
 
     @Override
@@ -49,35 +76,6 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private void checkIfUserIsBannedOrAdmin(FirebaseUser user) {
-        if (user == null) {
-            Toast.makeText(this, "User not found", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        FirebaseFirestore.getInstance().collection("users")
-                .document(user.getEmail())
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        Boolean isBanned = documentSnapshot.getBoolean("is_banned");
-                        if (isBanned != null && isBanned) {
-                            Toast.makeText(this, "Your account is banned. Contact support.", Toast.LENGTH_SHORT).show();
-                            FirebaseAuth.getInstance().signOut();
-                            finish();
-                        } else {
-                            checkIfUserIsAdmin(user);
-                        }
-                    } else {
-                        Toast.makeText(this, "User not found in Firestore", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Failed to check user status. Please try again.", Toast.LENGTH_SHORT).show();
-                    FirebaseAuth.getInstance().signOut();
-                    finish();
-                });
-    }
 
     private void checkIfUserIsAdmin(FirebaseUser user) {
         MainActivity.isAdmin(user, isAdmin -> {

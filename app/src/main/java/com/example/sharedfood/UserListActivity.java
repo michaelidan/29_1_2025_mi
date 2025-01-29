@@ -5,6 +5,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -85,13 +86,41 @@ public class UserListActivity extends AppCompatActivity {
                 banUser(user);
                 break;
             case "temp_ban":
-                tempBanUser(user);
+                showTempBanDialog(user); // קריאה לדיאלוג לבחירת זמן החסימה
                 break;
             case "promote":
                 promoteToAdmin(user);
                 break;
         }
     }
+    private void showTempBanDialog(User user) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("בחר את משך החסימה")
+                .setItems(new CharSequence[]{"3 שעות", "יום אחד", "3 ימים", "שבוע", "חודש"}, (dialog, which) -> {
+                    long durationInHours = 0;
+                    switch (which) {
+                        case 0: // 3 שעות
+                            durationInHours = 3;
+                            break;
+                        case 1: // יום אחד
+                            durationInHours = 24;
+                            break;
+                        case 2: // 3 ימים
+                            durationInHours = 72;
+                            break;
+                        case 3: // שבוע
+                            durationInHours = 168;
+                            break;
+                        case 4: // חודש
+                            durationInHours = 720;
+                            break;
+                    }
+                    tempBanUser(user, durationInHours);
+                })
+                .setNegativeButton("ביטול", null)
+                .show();
+    }
+
 
     private void banUser(User user) {
         boolean isBanned = user.isBanned(); // האם המשתמש כרגע חסום
@@ -137,11 +166,53 @@ public class UserListActivity extends AppCompatActivity {
 
 
 
-    private void tempBanUser(User user) {
-        // Implement UI to select ban duration and update Firestore
-        // Placeholder for now
-        Toast.makeText(this, "חסימה זמנית תתוסף בקרוב", Toast.LENGTH_SHORT).show();
+    private void tempBanUser(User user, long durationInHours) {
+        long currentTimeMillis = System.currentTimeMillis();
+        long banEndTimeMillis = currentTimeMillis + (durationInHours * 60 * 60 * 1000); // חישוב זמן פקיעת החסימה
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // עדכון המשתמש באוסף temp_banned_users
+        Map<String, Object> tempBanData = new HashMap<>();
+        tempBanData.put("email", user.getEmail());
+        tempBanData.put("ban_end_time", banEndTimeMillis);
+
+        db.collection("temp_banned_users")
+                .document(user.getEmail())
+                .set(tempBanData)
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(this, "משתמש נחסם זמנית", Toast.LENGTH_SHORT).show();
+                    loadUsers(); // עדכון הרשימה
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error applying temporary ban", e);
+                    Toast.makeText(this, "שגיאה בחסימה זמנית", Toast.LENGTH_SHORT).show();
+                });
     }
+
+
+    private void checkAndRemoveExpiredTempBans() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        long currentTimeMillis = System.currentTimeMillis();
+
+        db.collection("temp_banned_users")
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    querySnapshot.forEach(document -> {
+                        Long banEndTime = document.getLong("ban_end_time");
+                        if (banEndTime != null && banEndTime < currentTimeMillis) {
+                            // הסרת המשתמש מאוסף temp_banned_users
+                            db.collection("temp_banned_users").document(document.getId()).delete()
+                                    .addOnSuccessListener(aVoid -> Log.d(TAG, "חסימה זמנית הסתיימה עבור: " + document.getId()))
+                                    .addOnFailureListener(e -> Log.e(TAG, "שגיאה בהסרת חסימה זמנית עבור: " + document.getId(), e));
+                        }
+                    });
+                })
+                .addOnFailureListener(e -> Log.e(TAG, "שגיאה בגישה לאוסף temp_banned_users", e));
+    }
+
+
+
 
     private void promoteToAdmin(User user) {
         Log.d(TAG, "promoteToAdmin: Trying to promote " + user.getEmail()); // לצורך בדיקה
