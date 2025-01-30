@@ -166,29 +166,22 @@ public class UserListActivity extends AppCompatActivity {
 
 
 
-    private void tempBanUser(User user, long durationInHours) {
-        long currentTimeMillis = System.currentTimeMillis();
-        long banEndTimeMillis = currentTimeMillis + (durationInHours * 60 * 60 * 1000); // חישוב זמן פקיעת החסימה
+    private void tempBanUser(User user, long durationMillis) {
+        long tempBanTime = System.currentTimeMillis() + durationMillis;
 
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-        // עדכון המשתמש באוסף temp_banned_users
-        Map<String, Object> tempBanData = new HashMap<>();
-        tempBanData.put("email", user.getEmail());
-        tempBanData.put("ban_end_time", banEndTimeMillis);
-
-        db.collection("temp_banned_users")
-                .document(user.getEmail())
-                .set(tempBanData)
+        db.collection("users").document(user.getEmail())
+                .update("temp_ban_time", tempBanTime)
                 .addOnSuccessListener(aVoid -> {
+                    user.setTempBanTime(tempBanTime);
                     Toast.makeText(this, "משתמש נחסם זמנית", Toast.LENGTH_SHORT).show();
-                    loadUsers(); // עדכון הרשימה
+                    loadUsers();
                 })
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error applying temporary ban", e);
+                    Log.e(TAG, "Error applying temp ban", e);
                     Toast.makeText(this, "שגיאה בחסימה זמנית", Toast.LENGTH_SHORT).show();
                 });
     }
+
 
 
     private void checkAndRemoveExpiredTempBans() {

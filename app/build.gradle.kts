@@ -4,7 +4,8 @@ plugins {
 
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.kotlin.kapt)}
+    alias(libs.plugins.kotlin.kapt)
+}
 
 android {
     namespace = "com.example.sharedfood"
@@ -57,21 +58,12 @@ dependencies {
     kapt("com.github.bumptech.glide:compiler:4.15.1")
 
     // Firebase BoM to manage versions of Firebase libraries
-    implementation(platform("com.google.firebase:firebase-bom:32.1.0")) // Update to the latest BoM version
+    implementation(platform("com.google.firebase:firebase-bom:32.2.2")) // עדכון לגרסה העדכנית ביותר
 
-    // Firebase libraries (no need to specify versions, they will be managed by the BoM)
-    implementation("com.google.firebase:firebase-auth") {
-        exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-jdk8")
-        exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-jdk7")
-    }
-    implementation("com.google.firebase:firebase-firestore") {
-        exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-jdk8")
-        exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-jdk7")
-    }
-    implementation("com.google.firebase:firebase-storage") {
-        exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-jdk8")
-        exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-jdk7")
-    }
+    // Firebase libraries (versions managed by the BoM)
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-firestore")
+    implementation("com.google.firebase:firebase-storage")
 
     implementation("com.google.android.gms:play-services-location:18.0.0")
 
@@ -81,11 +73,7 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
 
     // Play services (for authentication)
-    implementation("com.google.android.gms:play-services-auth:21.3.0") {
-        exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-jdk8")
-        exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-jdk7")
-    }
-
+    implementation("com.google.android.gms:play-services-auth:21.3.0")
 
     implementation(libs.lifecycle.runtime.ktx)
     implementation(libs.activity.compose)
@@ -101,13 +89,12 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 
-    implementation ("com.facebook.android:facebook-login:latest.release")
+    implementation("com.facebook.android:facebook-login:latest.release")
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.ui.test.junit4)
     debugImplementation(libs.ui.tooling)
     debugImplementation(libs.ui.test.manifest)
 
-        //
     // Activity (libs version)
     implementation(libs.activity)
 

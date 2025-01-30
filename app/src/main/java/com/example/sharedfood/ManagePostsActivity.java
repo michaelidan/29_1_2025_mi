@@ -17,6 +17,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
@@ -151,16 +153,62 @@ import java.util.List;
                 .show();
     }
 
-    private void deletePost(Post post) {
-        db.collection("posts")
-                .document(post.getId())
-                .delete()
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(this, "הפוסט נמחק בהצלחה", Toast.LENGTH_SHORT).show();
-                    loadAllPosts(); // Refresh the list
-                })
-                .addOnFailureListener(e -> Toast.makeText(this, "שגיאה במחיקת הפוסט", Toast.LENGTH_SHORT).show());
-    }
+        private void deletePost(Post post) {
+            FirebaseAuth auth = FirebaseAuth.getInstance();
+            FirebaseUser user = auth.getCurrentUser();
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+            if (user == null) {
+                Log.e("ManagePosts", "User is not logged in");
+                Toast.makeText(this, "שגיאה: אין משתמש מחובר", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // קבלת האימייל של המשתמש והורדת רווחים מיותרים
+            String email = user.getEmail().trim();
+            Log.d("ManagePosts", "Logged in as: " + email);
+
+            // בדיקת אימייל באוסף admins בפיירבייס
+            db.collection("admins").document(email)
+                    .get()
+                    .addOnSuccessListener(document -> {
+                        if (document.exists()) {
+                            Log.d("ManagePosts", "User is admin: " + email);
+
+                            // עכשיו נוסיף בדיקה אם האימייל בפועל זהה בדיוק לאימייל באוסף admins
+                            String emailFromFirestore = document.getId().trim();
+                            if (!email.equals(emailFromFirestore)) {
+                                Log.e("ManagePosts", "Email mismatch! Expected: " + emailFromFirestore + ", Found: " + email);
+                                Toast.makeText(this, "שגיאה: האימייל לא תואם למה שבפיירבייס", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+
+                            // משתמש מזוהה כמנהל, מבצע מחיקה
+                            db.collection("posts")
+                                    .document(post.getId())
+                                    .delete()
+                                    .addOnSuccessListener(aVoid -> {
+                                        Log.d("ManagePosts", "Post deleted successfully: " + post.getId());
+                                        Toast.makeText(this, "הפוסט נמחק בהצלחה", Toast.LENGTH_SHORT).show();
+                                        loadAllPosts(); // רענון הרשימה
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Log.e("ManagePosts", "Error deleting post", e);
+                                        Toast.makeText(this, "שגיאה במחיקת הפוסט", Toast.LENGTH_SHORT).show();
+                                    });
+
+                        } else {
+                            Log.e("ManagePosts", "User is NOT an admin: " + email);
+                            Toast.makeText(this, "אין לך הרשאה למחוק פוסטים", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e("ManagePosts", "Failed to check admin status", e);
+                        Toast.makeText(this, "שגיאה בבדיקת הרשאות מנהל", Toast.LENGTH_SHORT).show();
+                    });
+        }
+
+
 
     private Bitmap decodeBase64ToBitmap(String base64String) {
         try {
