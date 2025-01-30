@@ -31,6 +31,22 @@ public class LoginActivity extends AppCompatActivity {
         // קביעת קובץ ה-XML שמגדיר את התצוגה של הפעילות
         setContentView(R.layout.activity_login);
 
+        // **שלב דיבוג: בדיקת גישה לאוסף debug**
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("debug")
+                .document("testDoc") // שם המסמך לדיבוג
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Log.d("FirestoreDebug", "Successfully read debug document: " + documentSnapshot.getData());
+                    } else {
+                        Log.d("FirestoreDebug", "Debug document does not exist.");
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("FirestoreError", "Failed to read debug document.", e);
+                });
+
         // אתחול Firebase Authentication
         mAuth = FirebaseAuth.getInstance();
 
@@ -83,6 +99,7 @@ public class LoginActivity extends AppCompatActivity {
                     if (documentSnapshot.exists()) {
                         Log.d("FirestoreDebug", "User is permanently banned: " + email);
                         Toast.makeText(this, "Your account is permanently banned. Contact support.", Toast.LENGTH_SHORT).show();
+                        return; // מונע המשך התחברות
                     } else {
                         Log.d("FirestoreDebug", "User is NOT permanently banned. Checking temp ban...");
 
@@ -95,15 +112,13 @@ public class LoginActivity extends AppCompatActivity {
                                         Long tempBanTime = userDoc.getLong("temp_ban_time");
                                         long currentTime = System.currentTimeMillis();
 
-                                        if (tempBanTime != null) {
-                                            Log.d("FirestoreDebug", "Temp ban time: " + tempBanTime + ", Current time: " + currentTime);
-                                            if (tempBanTime > currentTime) {
-                                                Log.d("FirestoreDebug", "User is temporarily banned: " + email);
-                                                Toast.makeText(this, "Your account is temporarily banned. Contact support.", Toast.LENGTH_SHORT).show();
-                                                return;
-                                            }
-                                        } else {
-                                            Log.d("FirestoreDebug", "User does not have temp_ban_time set.");
+                                        Log.d("FirestoreDebug", "Current time: " + currentTime);
+                                        Log.d("FirestoreDebug", "User's temp_ban_time: " + tempBanTime);
+
+                                        if (tempBanTime != null && tempBanTime > currentTime) {
+                                            Log.d("FirestoreDebug", "User is temporarily banned: " + email);
+                                            Toast.makeText(this, "Your account is temporarily banned. Contact support.", Toast.LENGTH_SHORT).show();
+                                            return; // מונע המשך התחברות
                                         }
 
                                         Log.d("FirestoreDebug", "User is NOT temporarily banned. Proceeding with login.");
@@ -114,6 +129,10 @@ public class LoginActivity extends AppCompatActivity {
                                     }
                                 })
                                 .addOnFailureListener(e -> {
+                                    if (e instanceof FirebaseFirestoreException) {
+                                        FirebaseFirestoreException firestoreException = (FirebaseFirestoreException) e;
+                                        Log.e("FirestoreError", "Error code: " + firestoreException.getCode());
+                                    }
                                     Log.e("FirestoreError", "Failed to check temporary ban status", e);
                                     Toast.makeText(this, "Failed to connect to the database. Please try again.", Toast.LENGTH_SHORT).show();
                                     onNotBanned.run();
@@ -121,12 +140,15 @@ public class LoginActivity extends AppCompatActivity {
                     }
                 })
                 .addOnFailureListener(e -> {
+                    if (e instanceof FirebaseFirestoreException) {
+                        FirebaseFirestoreException firestoreException = (FirebaseFirestoreException) e;
+                        Log.e("FirestoreError", "Error code: " + firestoreException.getCode());
+                    }
                     Log.e("FirestoreError", "Failed to check permanent ban status", e);
                     Toast.makeText(this, "Failed to connect to the database. Please try again.", Toast.LENGTH_SHORT).show();
                     onNotBanned.run();
                 });
     }
-
 
     // פונקציה לבדיקה אם המשתמש חסום או מנהל
     private void checkIfUserIsBannedOrAdmin(FirebaseUser user) {
